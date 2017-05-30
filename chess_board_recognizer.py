@@ -13,15 +13,17 @@ sess = tf.InteractiveSession()
 
 # Import for visualization
 import PIL.Image
-from io import StringIO   #This module implements a file-like class, StringIO, that reads and writes a string buffer
+from io import BytesIO   #This module implements a file-like class, StringIO, that reads and writes a string buffer
+from IPython.display import clear_output, Image, display
+
 
 # Display an array as a picture
 def display_array(a, format = 'jpeg', rng = [0, 1]):
     a = (a - rng[0]) / float(rng[1] - rng[0]) * 255
     a = np.uint8(np.clip(a, 0, 255))
-    file = StringIO()
+    file = BytesIO()
     PIL.Image.fromarray(a).save(file, format)
-    display(Image(data = file.getValue()))
+    display(Image(data = file.getvalue()))
 
 img_file = 'chess_board.png'
 
@@ -44,3 +46,6 @@ if img.size[0] > 2000 or img.size[1] > 2000:
     print ("Reducing by factor of %.2g" % (1. / ratio))
     img = img.resize(img.size * ratio, PIL.Image.ADAPTIVE)
     print ("New size: (%d x %d)" % (img.size[0], img.size[1]))
+
+# See original image
+display_array(np.asarray(img), rng = [0,255])
