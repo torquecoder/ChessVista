@@ -13,7 +13,7 @@ sess = tf.InteractiveSession()
 
 # Import for visualization
 import PIL.Image
-from io import BytesIO   #This module implements a file-like class, StringIO, that reads and writes a string buffer
+from io import BytesIO
 from IPython.display import clear_output, Image, display
 
 
@@ -25,10 +25,9 @@ def display_array(a, format = 'jpeg', rng = [0, 1]):
     PIL.Image.fromarray(a).save(file, format)
     display(Image(data = file.getvalue()))
 
+
 img_file = 'chess_board.png'
-
 folder = "."
-
 img = PIL.Image.open("%s/%s" % (folder,img_file))
 
 print ("Loaded %s (%dpx x %dpx)" % (img_file, img.size[0], img.size[1]))
@@ -49,3 +48,9 @@ if img.size[0] > 2000 or img.size[1] > 2000:
 
 # See original image
 display_array(np.asarray(img), rng = [0,255])
+
+# Convert to grayscale and array
+grayscale_image_array = np.asarray(img.convert("L"), dtype = np.float32) # translates a color image to black and white (mode “L”)
+
+# Display grayscale image
+display_array(grayscale_image_array, rng=[0,255])
