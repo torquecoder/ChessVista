@@ -13,10 +13,8 @@ folder_name = "generated_images"
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
-pieceSets = ["cburnett", "merida", "alpha", "pirouetti", "chessnut", "chess7", "reillycraig", "companion", "fantasy", "spatial", "shapes", "letter"]
-
 # Total chessboards to be grabbed
-N = 1
+N = 50
 image_no = 1
 
 while image_no <= N:
