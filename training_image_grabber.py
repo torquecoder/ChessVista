@@ -1,6 +1,7 @@
 from selenium import webdriver
 import numpy as np
 import os
+from PIL import Image
 
 def getRandomFEN():
     fen_chars = list('1KQRBNPkqrbnp')
@@ -15,7 +16,7 @@ if not os.path.exists(folder_name):
 pieceSets = ["cburnett", "merida", "alpha", "pirouetti", "chessnut", "chess7", "reillycraig", "companion", "fantasy", "spatial", "shapes", "letter"]
 
 # Total chessboards to be grabbed
-N = 20
+N = 1
 image_no = 1
 
 while image_no <= N:
@@ -26,6 +27,7 @@ while image_no <= N:
     FEN = FEN.replace('/','-')
     file_name = FEN + '.png'
     driver.save_screenshot('generated_images/' + file_name)
+    im = Image.open('generated_images/' + file_name).crop([221,60,732,570]).save('generated_images/' + file_name)
     print ("Saved Image ", image_no)
     image_no += 1
 
