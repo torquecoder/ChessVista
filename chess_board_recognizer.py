@@ -33,13 +33,13 @@ def display_array(a, format='jpeg', rng=[0, 1]):
 
 # Bad fit example
 # img_file = 't1.png'
-img_file = 'bkn5nn4.jpg'
+img_file = '5Rnk-1P3Pqp-1K1Np3-pP1bN1r1-Pp1rP1P1-p1P3B1-1P1p1pQp-n1R3bB w - - 0 1.png'
 
 # img_file = 'lichess_5.png'
 
 # folder = "chessboards/input_chessboards"
 # folder = "chessboards/test_chessboards"
-folder = "."
+folder = "training_chessboards"
 
 img = PIL.Image.open("%s/%s" % (folder, img_file))
 

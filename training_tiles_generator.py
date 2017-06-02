@@ -1,4 +1,10 @@
-input_chessboard_folder = 'chessboards/train_images'
-output_tile_folder = 'tiles/train_tiles_C'
+import chess_board_recognizer
+import os
 
-tensorflow_chessbot.generateTileset(input_chessboard_folder, output_tile_folder)
+input_chessboard_folder = "training_chessboards"
+output_tile_folder = "training_tiles"
+
+if not os.path.exists(output_tile_folder):
+    os.makedirs(output_tile_folder)
+
+chess_board_recognizer.generateTileset(input_chessboard_folder, output_tile_folder)
