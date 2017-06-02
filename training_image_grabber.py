@@ -9,7 +9,7 @@ def getRandomFEN():
     fen = '/'.join([''.join(pieces[i * 8 : (i + 1) * 8]) for i in range(8)])
     return fen
 
-folder_name = "generated_images"
+folder_name = "training_chessboards"
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
@@ -24,13 +24,12 @@ while image_no <= N:
     driver.get('https://lichess.org/analysis/standard/' + FEN)
     FEN = FEN.replace('/', '-')
     file_name = FEN + '.png'
-    driver.save_screenshot('generated_images/' + file_name)
-    im = Image.open('generated_images/' + file_name).crop([221,60,732,570]).save('generated_images/' + file_name)
+    driver.save_screenshot('training_chessboards/' + file_name)
+    im = Image.open('training_chessboards/' + file_name).crop([221,60,732,570]).save('training_chessboards/' + file_name)
     print ("Saved Image ", image_no)
     image_no += 1
 
 driver.quit()
-
 
 # Organize and crop already taken screenshots from chess.com
 fen_array = ["k2B1rn1/1p2pp1P/P5PP/pqN2p1P/2P5/K2bpp1P/PrBb2pQ/1RRn1N2 w - - 0 1", "RQ3n2/p1N1NrpP/PP1q1p2/np1PrPB1/1bp2P2/2pp2P1/4RPbp/K4Bk1 w - - 0 1",
@@ -41,6 +40,6 @@ for i in range (0, 6):
     FEN = fen_array[i].replace('/', '-')
     file_name = FEN + '.png'
     current_name = str(i + 1) + ".png"
-    im = Image.open("chess.com_screenshots/" + current_name).crop([400,160,1280,1040]).save('generated_images/' + file_name)
+    im = Image.open("chess.com_screenshots/" + current_name).crop([400,160,1280,1040]).save('training_chessboards/' + file_name)
     print ("Saved Image ", image_no)
     image_no += 1
