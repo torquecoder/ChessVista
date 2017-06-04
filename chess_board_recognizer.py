@@ -261,11 +261,11 @@ def getChessTiles(a, lines_x, lines_y):
 
 
 
-def generateTileset():
+def generateTileset(str):
     np.set_printoptions(suppress=True)
 
     sess = tf.InteractiveSession()
-    img_file = "5Rnk-1P3Pqp-1K1Np3-pP1bN1r1-Pp1rP1P1-p1P3B1-1P1p1pQp-n1R3bB w - - 0 1.png"
+    img_file = str
     folder = "training_chessboards"
 
     img = PIL.Image.open("%s/%s" % (folder, img_file))
