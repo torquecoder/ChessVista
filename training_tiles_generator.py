@@ -7,4 +7,6 @@ output_tile_folder = "training_tiles"
 if not os.path.exists(output_tile_folder):
     os.makedirs(output_tile_folder)
 
+
+#chess_board_recognizer.ImageName()
 chess_board_recognizer.generateTileset(input_chessboard_folder, output_tile_folder)

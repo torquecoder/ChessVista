@@ -3,9 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import tensorflow as tf
 import numpy as np
-np.set_printoptions(suppress=True)
 
-sess = tf.InteractiveSession()
 
 # Imports for visualization
 import PIL.Image
@@ -22,53 +20,8 @@ def display_array(a, format='jpeg', rng=[0, 1]):
     PIL.Image.fromarray(a).save(file, format)
     display(Image(data=file.getvalue()))
 
-# File
-# img_file = 'img1.png'
-# img_file = 'img2.png'
-# img_file = 'img3.gif'
-# img_file = 'img4.jpg'
-# img_file = 'img7.png'
-# img_file = 'img9.png' # Doesn't work anymore due to non-alternating checkerboard lines
-
-
-# Bad fit example
-# img_file = 't1.png'
-img_file = '5Rnk-1P3Pqp-1K1Np3-pP1bN1r1-Pp1rP1P1-p1P3B1-1P1p1pQp-n1R3bB w - - 0 1.png'
-
-# img_file = 'lichess_5.png'
-
-# folder = "chessboards/input_chessboards"
-# folder = "chessboards/test_chessboards"
-folder = "training_chessboards"
-
-img = PIL.Image.open("%s/%s" % (folder, img_file))
-
-print ("Loaded %s (%dpx x %dpx)" % \
-    (img_file, img.size[0], img.size[1]))
-
-# Resize if image larger than 2k pixels on a side
-if img.size[0] > 2000 or img.size[1] > 2000:
-    print ("Image too big (%d x %d)" % (img.size[0], img.size[1]))
-    new_size = 500.0  # px
-    if img.size[0] > img.size[1]:
-        # resize by width to new limit
-        ratio = new_size / img.size[0]
-    else:
-        # resize by height
-        ratio = new_size / img.size[1]
-    print ("Reducing by factor of %.2g" % (1. / ratio))
-    img = img.resize(img.size * ratio, PIL.Image.ADAPTIVE)
-    print ("New size: (%d x %d)" % (img.size[0], img.size[1]))
-
-# See original image
-display_array(np.asarray(img), rng=[0, 255])
-
-# Convert to grayscale and array
-a = np.asarray(img.convert("L"), dtype=np.float32)
-
-# Display array
-display_array(a, rng=[0, 255])
-
+def ImageName(str):
+    img_file = str
 
 def make_kernel(a):
     """Transform a 2D array into a convolution kernel"""
@@ -103,8 +56,6 @@ def corners(x):
     chess_corner = make_kernel([[-1., 0, 1], [0., 0., 0.], [1., 0, -1]])
     return simple_conv(x, chess_corner)
 
-# Following are meant for binary images
-
 
 def dilate(x, size=3):
     """Dilate"""
@@ -138,60 +89,6 @@ def skeleton(x, size=3):
 
 
 # Get our grayscale image matrix
-A = tf.Variable(a)
-
-# Get X & Y gradients and subtract opposite gradient
-# Strongest response where gradient is unidirectional
-# clamp into range 0-1
-# Dx = tf.clip_by_value(np.abs(gradientx(A)) - np.abs(gradienty(A)),
-#                       0., 1.)
-# Dy = tf.clip_by_value(np.abs(gradienty(A)) - np.abs(gradientx(A)),
-#                       0., 1.)
-
-Dx = gradientx(A)
-Dy = gradienty(A)
-
-# Dxy = np.abs(gradientx(A) * gradienty(A))
-# Dc = np.abs(corners(A))
-
-# Initialize state to initial conditions
-tf.initialize_all_variables().run()
-
-display_array(Dx.eval(), rng=[-255, 255])
-display_array(Dy.eval(), rng=[-255, 255])
-
-Dx_pos = tf.clip_by_value(Dx, 0., 255., name="dx_positive")
-Dx_neg = tf.clip_by_value(Dx, -255., 0., name='dx_negative')
-Dy_pos = tf.clip_by_value(Dy, 0., 255., name="dy_positive")
-Dy_neg = tf.clip_by_value(Dy, -255., 0., name='dy_negative')
-
-
-hough_Dx = tf.reduce_sum(Dx_pos, 0) * \
-    tf.reduce_sum(-Dx_neg, 0) / (a.shape[0] * a.shape[0])
-hough_Dy = tf.reduce_sum(Dy_pos, 1) * \
-    tf.reduce_sum(-Dy_neg, 1) / (a.shape[1] * a.shape[1])
-# Normalized to 0-255*255=65025 range
-
-#%matplotlib inline
-import matplotlib.pyplot as plt
-
-fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(15, 5))
-
-# Arbitrarily choose half of max value as threshold, since they're such strong responses
-hough_Dx_thresh = tf.reduce_max(hough_Dx) * 3 / 5
-hough_Dy_thresh = tf.reduce_max(hough_Dy) * 3 / 5
-
-ax1.plot(hough_Dx.eval())
-ax1.axhline(hough_Dx_thresh.eval(), lw=2, linestyle=':', color='r')
-ax1.set_title('Hough Gradient X')
-ax1.set_xlabel('Pixel')
-ax1.set_xlim(0, a.shape[1])
-
-ax2.plot(hough_Dy.eval())
-ax2.axhline(hough_Dy_thresh.eval(), lw=2, linestyle=':', color='r')
-ax2.set_title('Hough Gradient Y')
-ax2.set_xlim(0, a.shape[0])
-ax2.set_xlabel('Pixel')
 
 
 def checkMatch(lineset):
@@ -273,57 +170,6 @@ def getChessLines(hdx, hdy, hdx_thresh, hdy_thresh):
     return lines_x, lines_y, is_match
 
 
-# Get chess lines
-lines_x, lines_y, is_match = getChessLines(hough_Dx.eval().flatten(),
-                                           hough_Dy.eval().flatten(),
-                                           hough_Dx_thresh.eval(),
-                                           hough_Dy_thresh.eval())
-
-lines_x, lines_y, is_match = getChessLines(hough_Dx.eval().flatten(),
-                                           hough_Dy.eval().flatten(),
-                                           hough_Dx_thresh.eval() * .9,
-                                           hough_Dy_thresh.eval() * .9)
-
-print ("X", lines_x, np.diff(lines_x))
-print ("Y", lines_y, np.diff(lines_y))
-if is_match:
-    print ("Chessboard found")
-else:
-    print ("Couldn't find Chessboard")
-
-# Plot blurred 1d hough arrays and skeletonized versions
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
-
-ax1.plot(hough_Dx.eval())
-ax1.axhline(hough_Dx_thresh.eval(), lw=2, linestyle=':', color='r')
-ax1.set_title('Hough Gradient X')
-ax1.set_xlabel('Pixel')
-ax1.set_xlim(0, a.shape[1])
-
-ax2.plot(hough_Dy.eval())
-ax2.axhline(hough_Dy_thresh.eval(), lw=2, linestyle=':', color='r')
-ax2.set_title('Hough Gradient Y')
-ax2.set_xlim(0, a.shape[0])
-ax2.set_xlabel('Pixel')
-
-# Plot lines for where peaks where found
-if len(lines_x < 20):
-    for hx in lines_x:
-        ax1.axvline(hx, color='r')
-if len(lines_y < 20):
-    for hy in lines_y:
-        ax2.axvline(hy, color='r')
-
-plt.imshow(img)
-for hx in lines_x:
-    plt.axvline(hx, color='b', lw=2)
-
-for hy in lines_y:
-    plt.axhline(hy, color='r', lw=2)
-
-
-print ("X   (vertical)", lines_x, np.diff(lines_x))
-print ("Y (horizontal)", lines_y, np.diff(lines_y))
 
 
 def getChessTiles(a, lines_x, lines_y):
@@ -332,10 +178,6 @@ def getChessTiles(a, lines_x, lines_y):
     stepx = np.int32(np.round(np.mean(np.diff(lines_x))))
     stepy = np.int32(np.round(np.mean(np.diff(lines_y))))
 
-    # Pad edges as needed to fill out chessboard (for images that are partially over-cropped)
-#     print stepx, stepy
-#     print "x",lines_x[0] - stepx, "->", lines_x[-1] + stepx, a.shape[1]
-#     print "y", lines_y[0] - stepy, "->", lines_y[-1] + stepy, a.shape[0]
     padr_x = 0
     padl_x = 0
     padr_y = 0
@@ -418,41 +260,170 @@ def getChessTiles(a, lines_x, lines_y):
     return squares
 
 
-if is_match:
-    # Possibly check np.std(np.diff(lines_x)) for variance etc. as well/instead
-    print ("7 horizontal and vertical lines found, slicing up squares")
-    squares = getChessTiles(a, lines_x, lines_y)
-    print ("Tiles generated: (%dx%d)*%d" % (squares.shape[0], squares.shape[1], squares.shape[2]))
-else:
-    print ("Number of lines not equal to 7")
 
-letters = 'ABCDEFGH'
+def generateTileset():
+    np.set_printoptions(suppress=True)
 
-if is_match:
-    print ("Order is row-wise from top left of image going right and down, so a8,b8....a7,b7,c7...h1")
-    print ("Showing 5 random squares...")
-    for i in np.random.choice(np.arange(64), 5, replace=False):
-        print ("#%d: %s%d" % (i, letters[i % 8], i / 8 + 1))
-        display_array(squares[:, :, i], rng=[0, 255])
-else:
-    print ("Didn't have lines to slice image up.")
+    sess = tf.InteractiveSession()
+    img_file = "5Rnk-1P3Pqp-1K1Np3-pP1bN1r1-Pp1rP1P1-p1P3B1-1P1p1pQp-n1R3bB w - - 0 1.png"
+    folder = "training_chessboards"
 
-img_save_dir = "chessboards/output_tiles/squares_%s" % img_file[:-4]
+    img = PIL.Image.open("%s/%s" % (folder, img_file))
 
-if not is_match:
-    print ("No squares to save")
-else:
-    if not os.path.exists(img_save_dir):
-        os.makedirs(img_save_dir)
-        print ("Created dir %s" % img_save_dir)
+    print ("Loaded %s (%dpx x %dpx)" % \
+        (img_file, img.size[0], img.size[1]))
 
-    for i in range(64):
-        sqr_filename = "%s/%s_%s%d.png" % (img_save_dir,
-                                           img_file[:-4], letters[i % 8], i / 8 + 1)
-        if i % 8 == 0:
-            print ("#%d: saving %s..." % (i, sqr_filename))
+    # Resize if image larger than 2k pixels on a side
+    if img.size[0] > 2000 or img.size[1] > 2000:
+        print ("Image too big (%d x %d)" % (img.size[0], img.size[1]))
+        new_size = 500.0  # px
+        if img.size[0] > img.size[1]:
+            # resize by width to new limit
+            ratio = new_size / img.size[0]
+        else:
+            # resize by height
+            ratio = new_size / img.size[1]
+        print ("Reducing by factor of %.2g" % (1. / ratio))
+        img = img.resize(img.size * ratio, PIL.Image.ADAPTIVE)
+        print ("New size: (%d x %d)" % (img.size[0], img.size[1]))
 
-        # Make resized 32x32 image from matrix and save
-        PIL.Image.fromarray(squares[:, :, i]) \
-            .resize([32, 32], PIL.Image.ADAPTIVE) \
-            .save(sqr_filename)
+    # See original image
+    display_array(np.asarray(img), rng=[0, 255])
+
+    # Convert to grayscale and array
+    a = np.asarray(img.convert("L"), dtype=np.float32)
+
+    # Display array
+    display_array(a, rng=[0, 255])
+    A = tf.Variable(a)
+
+
+    Dx = gradientx(A)
+    Dy = gradienty(A)
+
+
+    tf.initialize_all_variables().run()
+
+    display_array(Dx.eval(), rng=[-255, 255])
+    display_array(Dy.eval(), rng=[-255, 255])
+
+    Dx_pos = tf.clip_by_value(Dx, 0., 255., name="dx_positive")
+    Dx_neg = tf.clip_by_value(Dx, -255., 0., name='dx_negative')
+    Dy_pos = tf.clip_by_value(Dy, 0., 255., name="dy_positive")
+    Dy_neg = tf.clip_by_value(Dy, -255., 0., name='dy_negative')
+
+
+    hough_Dx = tf.reduce_sum(Dx_pos, 0) * \
+        tf.reduce_sum(-Dx_neg, 0) / (a.shape[0] * a.shape[0])
+    hough_Dy = tf.reduce_sum(Dy_pos, 1) * \
+        tf.reduce_sum(-Dy_neg, 1) / (a.shape[1] * a.shape[1])
+
+
+    import matplotlib.pyplot as plt
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(15, 5))
+
+    # Arbitrarily choose half of max value as threshold, since they're such strong responses
+    hough_Dx_thresh = tf.reduce_max(hough_Dx) * 3 / 5
+    hough_Dy_thresh = tf.reduce_max(hough_Dy) * 3 / 5
+
+    ax1.plot(hough_Dx.eval())
+    ax1.axhline(hough_Dx_thresh.eval(), lw=2, linestyle=':', color='r')
+    ax1.set_title('Hough Gradient X')
+    ax1.set_xlabel('Pixel')
+    ax1.set_xlim(0, a.shape[1])
+
+    ax2.plot(hough_Dy.eval())
+    ax2.axhline(hough_Dy_thresh.eval(), lw=2, linestyle=':', color='r')
+    ax2.set_title('Hough Gradient Y')
+    ax2.set_xlim(0, a.shape[0])
+    ax2.set_xlabel('Pixel')
+    # Get chess lines
+    lines_x, lines_y, is_match = getChessLines(hough_Dx.eval().flatten(),
+                                               hough_Dy.eval().flatten(),
+                                               hough_Dx_thresh.eval(),
+                                               hough_Dy_thresh.eval())
+
+    lines_x, lines_y, is_match = getChessLines(hough_Dx.eval().flatten(),
+                                               hough_Dy.eval().flatten(),
+                                               hough_Dx_thresh.eval() * .9,
+                                               hough_Dy_thresh.eval() * .9)
+
+    print ("X", lines_x, np.diff(lines_x))
+    print ("Y", lines_y, np.diff(lines_y))
+    if is_match:
+        print ("Chessboard found")
+    else:
+        print ("Couldn't find Chessboard")
+
+    # Plot blurred 1d hough arrays and skeletonized versions
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
+
+    ax1.plot(hough_Dx.eval())
+    ax1.axhline(hough_Dx_thresh.eval(), lw=2, linestyle=':', color='r')
+    ax1.set_title('Hough Gradient X')
+    ax1.set_xlabel('Pixel')
+    ax1.set_xlim(0, a.shape[1])
+
+    ax2.plot(hough_Dy.eval())
+    ax2.axhline(hough_Dy_thresh.eval(), lw=2, linestyle=':', color='r')
+    ax2.set_title('Hough Gradient Y')
+    ax2.set_xlim(0, a.shape[0])
+    ax2.set_xlabel('Pixel')
+
+    # Plot lines for where peaks where found
+    if len(lines_x < 20):
+        for hx in lines_x:
+            ax1.axvline(hx, color='r')
+    if len(lines_y < 20):
+        for hy in lines_y:
+            ax2.axvline(hy, color='r')
+
+    plt.imshow(img)
+    for hx in lines_x:
+        plt.axvline(hx, color='b', lw=2)
+
+    for hy in lines_y:
+        plt.axhline(hy, color='r', lw=2)
+
+
+    print ("X   (vertical)", lines_x, np.diff(lines_x))
+    print ("Y (horizontal)", lines_y, np.diff(lines_y))
+    if is_match:
+        # Possibly check np.std(np.diff(lines_x)) for variance etc. as well/instead
+        print ("7 horizontal and vertical lines found, slicing up squares")
+        squares = getChessTiles(a, lines_x, lines_y)
+        print ("Tiles generated: (%dx%d)*%d" % (squares.shape[0], squares.shape[1], squares.shape[2]))
+    else:
+        print ("Number of lines not equal to 7")
+
+    letters = 'ABCDEFGH'
+
+    if is_match:
+        print ("Order is row-wise from top left of image going right and down, so a8,b8....a7,b7,c7...h1")
+        print ("Showing 5 random squares...")
+        for i in np.random.choice(np.arange(64), 5, replace=False):
+            print ("#%d: %s%d" % (i, letters[i % 8], i / 8 + 1))
+            display_array(squares[:, :, i], rng=[0, 255])
+    else:
+        print ("Didn't have lines to slice image up.")
+
+    img_save_dir = "chessboards/output_tiles/squares_%s" % img_file[:-4]
+
+    if not is_match:
+        print ("No squares to save")
+    else:
+        if not os.path.exists(img_save_dir):
+            os.makedirs(img_save_dir)
+            print ("Created dir %s" % img_save_dir)
+
+        for i in range(64):
+            sqr_filename = "%s/%s_%s%d.png" % (img_save_dir,
+                                               img_file[:-4], letters[i % 8], i / 8 + 1)
+            if i % 8 == 0:
+                print ("#%d: saving %s..." % (i, sqr_filename))
+
+            # Make resized 32x32 image from matrix and save
+            PIL.Image.fromarray(squares[:, :, i]) \
+                .resize([32, 32], PIL.Image.ADAPTIVE) \
+                .save(sqr_filename)
