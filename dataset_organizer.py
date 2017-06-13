@@ -27,6 +27,18 @@ if not os.path.exists(output_directory + "/white_rook"):
 if not os.path.exists(output_directory + "/black_rook"):
     os.makedirs(output_directory + "/black_rook")
 
+if not os.path.exists(output_directory + "/white_queen"):
+    os.makedirs(output_directory + "/white_queen")
+
+if not os.path.exists(output_directory + "/black_queen"):
+    os.makedirs(output_directory + "/black_queen")
+
+if not os.path.exists(output_directory + "/white_king"):
+    os.makedirs(output_directory + "/white_king")
+
+if not os.path.exists(output_directory + "/black_king"):
+    os.makedirs(output_directory + "/black_king")
+
 white_pawn_idx = 1
 black_pawn_idx = 1
 white_knight_idx = 1
@@ -35,6 +47,11 @@ white_bishop_idx = 1
 black_bishop_idx = 1
 white_rook_idx = 1
 black_rook_idx = 1
+white_queen_idx = 1
+black_queen_idx = 1
+white_king_idx = 1
+black_king_idx = 1
+
 
 for fld in os.listdir("training_tiles"):
     path = os.path.join("training_tiles", fld, '*g')  # For finding all .jpeg, .jpg, .png files
@@ -80,3 +97,23 @@ for fld in os.listdir("training_tiles"):
             location = output_directory + "/black_rook/" + "black_rook" + str(black_rook_idx) + ".png"
             img.save(location)
             black_rook_idx += 1
+        elif ("A3" in fl) or ("B3" in fl):
+            img = Image.open(fl)
+            location = output_directory + "/white_queen/" + "white_queen" + str(white_queen_idx) + ".png"
+            img.save(location)
+            white_queen_idx += 1
+        elif ("C3" in fl) or ("D3" in fl):
+            img = Image.open(fl)
+            location = output_directory + "/black_queen/" + "black_queen" + str(black_queen_idx) + ".png"
+            img.save(location)
+            black_queen_idx += 1
+        elif ("E3" in fl) or ("F3" in fl):
+            img = Image.open(fl)
+            location = output_directory + "/white_king/" + "white_king" + str(white_king_idx) + ".png"
+            img.save(location)
+            white_king_idx += 1
+        elif ("G3" in fl) or ("H3" in fl):
+            img = Image.open(fl)
+            location = output_directory + "/black_king/" + "black_king" + str(black_king_idx) + ".png"
+            img.save(location)
+            black_king_idx += 1
