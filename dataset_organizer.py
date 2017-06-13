@@ -39,6 +39,9 @@ if not os.path.exists(output_directory + "/white_king"):
 if not os.path.exists(output_directory + "/black_king"):
     os.makedirs(output_directory + "/black_king")
 
+if not os.path.exists(output_directory + "/blank"):
+    os.makedirs(output_directory + "/blank")
+
 white_pawn_idx = 1
 black_pawn_idx = 1
 white_knight_idx = 1
@@ -51,7 +54,7 @@ white_queen_idx = 1
 black_queen_idx = 1
 white_king_idx = 1
 black_king_idx = 1
-
+blank_idx = 1
 
 for fld in os.listdir("training_tiles"):
     path = os.path.join("training_tiles", fld, '*g')  # For finding all .jpeg, .jpg, .png files
@@ -117,3 +120,8 @@ for fld in os.listdir("training_tiles"):
             location = output_directory + "/black_king/" + "black_king" + str(black_king_idx) + ".png"
             img.save(location)
             black_king_idx += 1
+        else:
+            img = Image.open(fl)
+            location = output_directory + "/blank/" + "blank" + str(blank_idx) + ".png"
+            img.save(location)
+            blank_idx += 1
