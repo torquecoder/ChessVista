@@ -408,7 +408,10 @@ def generateTileset(str):
     else:
         print ("Didn't have lines to slice image up.")
 
-    img_save_dir = "chessboards/output_tiles/squares_%s" % img_file[:-4]
+    img_save_dir = "training_tiles/squares_%s" % img_file[:-4]
+
+    
+
 
     if not is_match:
         print ("No squares to save")
