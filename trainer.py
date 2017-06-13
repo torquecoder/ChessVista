@@ -286,7 +286,8 @@ def optimize(num_iterations):
 
                 if patience == early_stopping:
                     break
-
+    saver = tf.train.Saver()
+    saver.save(session, 'trained_model/trained_model',global_step = 3000)
     # Update the total number of iterations performed.
     total_iterations += num_iterations
 
