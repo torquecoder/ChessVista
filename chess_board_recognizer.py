@@ -261,12 +261,12 @@ def getChessTiles(a, lines_x, lines_y):
 
 
 
-def generateTileset(str):
+def generateTileset(str, folder_name, tiles_directory):
     np.set_printoptions(suppress=True)
 
     sess = tf.InteractiveSession()
     img_file = str
-    folder = "training_chessboards"
+    folder = folder_name
 
     img = PIL.Image.open("%s/%s" % (folder, img_file))
 
@@ -408,9 +408,9 @@ def generateTileset(str):
     else:
         print ("Didn't have lines to slice image up.")
 
-    img_save_dir = "training_tiles/squares_%s" % img_file[:-4]
+    img_save_dir = tiles_directory + "/squares_%s" % img_file[:-4]
 
-    
+
 
 
     if not is_match:
