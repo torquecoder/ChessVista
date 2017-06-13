@@ -4,6 +4,10 @@ import tensorflow as tf
 import time
 from datetime import timedelta
 import data_helper
+import numpy as np
+%matplotlib inline
+import matplotlib.pyplot as plt
+import random
 
 # Convolutional layer 1
 filter_size_1 = 3
@@ -11,7 +15,7 @@ num_filters_1 = 32
 
 # Convolutional layer 2
 filter_size_2 = 3
-num_filters_2 = 32
+num_filters_2 = 64
 
 # Convolutional layer 3
 filter_size_3 = 3
@@ -39,7 +43,7 @@ classes = ['black_bishop', 'black_king', 'black_knight', 'black_pawn', 'black_qu
 num_classes = len(classes)
 
 # Batch size
-batch_size = 12
+batch_size = 4
 
 # Validation split
 validation_size = .2
@@ -258,11 +262,9 @@ def optimize(num_iterations):
 
         # Put the batch into a dict with the proper names
         # for placeholder variables in the TensorFlow graph.
-        feed_dict_train = {x: x_batch,
-                           y_true: y_true_batch}
+        feed_dict_train = {x: x_batch, y_true: y_true_batch}
 
-        feed_dict_validate = {x: x_valid_batch,
-                              y_true: y_valid_batch}
+        feed_dict_validate = {x: x_valid_batch, y_true: y_valid_batch}
 
         # Run the optimizer using this batch of training data.
         # TensorFlow assigns the variables in feed_dict_train
@@ -286,8 +288,12 @@ def optimize(num_iterations):
 
                 if patience == early_stopping:
                     break
+
     saver = tf.train.Saver()
-    saver.save(session, 'trained_model/trained_model',global_step = 3000)
+    if not os.path.exists("trained_model"):
+        os.makedirs("trained_model")
+    saver.save(session, 'trained_model/trained_model',global_step = 15000)
+
     # Update the total number of iterations performed.
     total_iterations += num_iterations
 
@@ -300,4 +306,129 @@ def optimize(num_iterations):
     # Print the time-usage.
     print("Time elapsed: " + str(timedelta(seconds=int(round(time_dif)))))
 
-optimize(num_iterations = 3000)
+
+def plot_images(images, cls_true, cls_pred = None):
+
+    if len(images) == 0:
+        print("no images to show")
+        return
+    else:
+        random_indices = random.sample(range(len(images)), min(len(images), 9))
+
+
+    images, cls_true  = zip(*[(images[i], cls_true[i]) for i in random_indices])
+
+    # Create figure with 3x3 sub-plots.
+    fig, axes = plt.subplots(3, 3)
+    fig.subplots_adjust(hspace=5, wspace=5)
+
+    for i, ax in enumerate(axes.flat):
+        # Plot image.
+        ax.imshow(images[i].reshape(img_size, img_size, num_channels))
+
+        # Show true and predicted classes.
+        if cls_pred is None:
+            xlabel = "True: {0}".format(cls_true[i])
+        else:
+            xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
+
+        # Show the classes as the label on the x-axis.
+        ax.set_xlabel(xlabel)
+
+        # Remove ticks from the plot.
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    # Ensure the plot is shown correctly with multiple plots
+    # in a single Notebook cell.
+    plt.show()
+
+
+def plot_example_errors(cls_pred, correct):
+
+    # cls_pred is an array of the predicted class-number for
+    # all images in the test-set.
+
+    # correct is a boolean array whether the predicted class
+    # is equal to the true class for each image in the test-set.
+
+    # Negate the boolean array.
+    incorrect = (correct == False)
+
+    # Get the images from the test-set that have been
+    # incorrectly classified.
+    images = data.valid.images[incorrect]
+
+    # Get the predicted classes for those images.
+    cls_pred = cls_pred[incorrect]
+
+    # Get the true classes for those images.
+    cls_true = data.valid.cls[incorrect]
+
+    # Plot the first 4 images.
+    plot_images(images = images[0:4],
+                cls_true = cls_true[0:4],
+                cls_pred = cls_pred[0:4])
+
+def print_validation_accuracy(show_example_errors = False):
+
+    # Number of images in the test-set.
+    num_test = len(data.valid.images)
+
+    # Allocate an array for the predicted classes which
+    # will be calculated in batches and filled into this array.
+    cls_pred = np.zeros(shape = num_test, dtype = np.int)
+
+    # Now calculate the predicted classes for the batches.
+    # We will just iterate through all the batches.
+    # The starting index for the next batch is denoted i.
+    i = 0
+
+    while i < num_test:
+        # The ending index for the next batch is denoted j.
+        j = min(i + batch_size, num_test)
+
+        # Get the images from the test-set between index i and j.
+        images = data.valid.images[i:j, :].reshape(batch_size, img_size_flat)
+
+
+        # Get the associated labels.
+        labels = data.valid.labels[i:j, :]
+
+        # Create a feed-dict with these images and labels.
+        feed_dict = {x: images, y_true: labels}
+
+        # Calculate the predicted class using TensorFlow.
+        cls_pred[i:j] = session.run(y_pred_cls, feed_dict = feed_dict)
+
+        # Set the start-index for the next batch to the
+        # end-index of the current batch.
+        i = j
+
+    cls_true = np.array(data.valid.cls)
+    cls_pred = np.array([classes[x] for x in cls_pred])
+
+    # Create a boolean array whether each image is correctly classified.
+    correct = (cls_true == cls_pred)
+
+    # Calculate the number of correctly classified images.
+    # When summing a boolean array, False means 0 and True means 1.
+    correct_sum = correct.sum()
+
+    # Classification accuracy is the number of correctly classified
+    # images divided by the total number of images in the test-set.
+    acc = float(correct_sum) / num_test
+
+    # Print the accuracy.
+    msg = "Accuracy on Test-Set: {0:.1%} ({1} / {2})"
+    print(msg.format(acc, correct_sum, num_test))
+
+    # Plot some examples of mis-classifications, if desired.
+    if show_example_errors:
+        print("Example errors:")
+        plot_example_errors(cls_pred = cls_pred, correct = correct)
+
+
+
+optimize(num_iterations = 15000)
+print_validation_accuracy(show_example_errors = True)

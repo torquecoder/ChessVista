@@ -14,7 +14,7 @@ def load_training_images(train_path, image_size, classes):
     print('Reading training images')
     for fld in classes:   # assuming data directory has a separate folder for each class, and that each folder is named after the class
         index = classes.index(fld)
-        print('Loading {} files (Index: {})'.format(fld, index))
+        #print('Loading {} files (Index: {})'.format(fld, index))
         path = os.path.join(train_path, fld, '*g')  # For finding all .jpeg, .jpg, .png files
         files = glob.glob(path)
         for fl in files:
@@ -39,13 +39,13 @@ def load_training_images(train_path, image_size, classes):
 
 def load_testing_images(test_path, image_size, classes):
 
+    print("Reading testing images")
     for class_name in classes:
         path = os.path.join(test_path, class_name, '*g')    # For finding all .jpeg, .jpg, .png files
         files = sorted(glob.glob(path))
 
         images_test = []
         images_test_id = []
-        print("Reading testing images")
         for fl in files:
             flbase = os.path.basename(fl)
             #print(fl)
