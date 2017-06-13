@@ -270,8 +270,8 @@ def generateTileset(str):
 
     img = PIL.Image.open("%s/%s" % (folder, img_file))
 
-    print ("Loaded %s (%dpx x %dpx)" % \
-        (img_file, img.size[0], img.size[1]))
+    #print ("Loaded %s (%dpx x %dpx)" % \
+    #    (img_file, img.size[0], img.size[1]))
 
     # Resize if image larger than 2k pixels on a side
     if img.size[0] > 2000 or img.size[1] > 2000:
@@ -288,13 +288,13 @@ def generateTileset(str):
         print ("New size: (%d x %d)" % (img.size[0], img.size[1]))
 
     # See original image
-    display_array(np.asarray(img), rng=[0, 255])
+    #display_array(np.asarray(img), rng=[0, 255])
 
     # Convert to grayscale and array
     a = np.asarray(img.convert("L"), dtype=np.float32)
 
     # Display array
-    display_array(a, rng=[0, 255])
+    #display_array(a, rng=[0, 255])
     A = tf.Variable(a)
 
 
@@ -302,10 +302,10 @@ def generateTileset(str):
     Dy = gradienty(A)
 
 
-    tf.initialize_all_variables().run()
+    tf.global_variables_initializer().run()
 
-    display_array(Dx.eval(), rng=[-255, 255])
-    display_array(Dy.eval(), rng=[-255, 255])
+    #display_array(Dx.eval(), rng=[-255, 255])
+    #display_array(Dy.eval(), rng=[-255, 255])
 
     Dx_pos = tf.clip_by_value(Dx, 0., 255., name="dx_positive")
     Dx_neg = tf.clip_by_value(Dx, -255., 0., name='dx_negative')
