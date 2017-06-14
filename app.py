@@ -1,7 +1,9 @@
 import os
+import glob
 from flask import Flask, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
+import chess_board_recognizer
 
 
 if not os.path.exists('uploads'):
@@ -37,6 +39,7 @@ def upload_file():
             flash('No image selected')
             return redirect(request.url)
         if file and allowed_file(file.filename):
+            file.filename = "image." + file.filename.rsplit('.', 1)[1].lower()
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded_file', filename=filename))
