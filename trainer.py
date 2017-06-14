@@ -210,7 +210,7 @@ layer_fc2 = new_fc_layer(input = layer_fc1,
                          num_outputs = num_classes,
                          use_relu = False)
 
-y_pred = tf.nn.softmax(layer_fc2)
+y_pred = tf.nn.softmax(layer_fc2, name = 'y_pred')
 y_pred_cls = tf.argmax(y_pred, dimension = 1)
 
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits = layer_fc2, labels = y_true)
