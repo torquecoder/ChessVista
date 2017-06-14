@@ -7,6 +7,10 @@ import glob
 import numpy as np
 import cv2
 
+
+classes = ['black_bishop', 'black_king', 'black_knight', 'black_pawn', 'black_queen', 'black_rook', 'blank', \
+'white_bishop', 'white_king', 'white_knight', 'white_pawn', 'white_queen', 'white_rook']
+
 session = tf.Session()
 saver = tf.train.import_meta_graph('trained_model/trained_model-15000.meta')
 saver.restore(session, tf.train.latest_checkpoint('trained_model/'))
@@ -16,7 +20,7 @@ y_pred = graph.get_tensor_by_name("y_pred:0")
 
 # First, load the image
 dir_path = os.path.dirname(os.path.realpath(__file__))
-image_path="/test_data/white_king/white_king5.png"
+image_path="/test_data/blank/blank12.png"
 filename = dir_path + image_path
 image_size = 32
 images = []
@@ -37,3 +41,5 @@ y_test_images = np.zeros((1, 13)) # 13 => number of classes
 feed_dict_testing = {x: x_batch, y_true: y_test_images}
 result = session.run(y_pred, feed_dict = feed_dict_testing)
 print(result)
+index = np.argmax(result)
+print(classes[index])
