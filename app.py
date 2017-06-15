@@ -22,13 +22,36 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['TILES_OUTPUT_FOLDER'] = TILES_OUTPUT_FOLDER
 
-symbol = ['black_bishop': 'b', 'black_king': 'k', 'black_knight': 'n', 'black_pawn': 'p', 'black_queen': 'q', 'black_rook': 'r', 'blank': 'e', \
-'white_bishop': 'B', 'white_king': 'K', 'white_knight': 'N', 'white_pawn': 'P', 'white_queen': 'Q', 'white_rook': 'R']
+symbol = {'black_bishop': 'b', 'black_king': 'k', 'black_knight': 'n', 'black_pawn': 'p', 'black_queen': 'q', 'black_rook': 'r', 'blank': 'e', \
+'white_bishop': 'B', 'white_king': 'K', 'white_knight': 'N', 'white_pawn': 'P', 'white_queen': 'Q', 'white_rook': 'R'}
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def createFEN(test_result):
+    FEN = ''
+    rows = 8
+    while rows > 0:
+        rows -= 1
+        st = rows
+        en = 63 - (7 - rows)
+        blanks = 0
+        for idx in range(st, en + 1, 8):
+            if (test_result[idx] == 'blank'):
+                blanks += 1
+            else:
+                if (blanks > 0):
+                    FEN += str(blanks)
+                    blanks = 0
+                FEN += symbol[test_result[idx]]
+        if (blanks > 0):
+            FEN += str(blanks)
+            blanks = 0
+        if rows != 0:
+            FEN += '/'
+    #print(FEN)
+    return FEN
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -67,9 +90,7 @@ def upload_file():
             for tile in tiles:
                 tiles_array.append(tile)
             test_result = tester.testTiles(tiles_array)
-
-            for piece in test_result:
-                print(piece)
+            FEN = createFEN(test_result)
             #return redirect(url_for('uploaded_file', filename=filename))
 
     return '''
