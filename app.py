@@ -93,6 +93,10 @@ def upload_file():
                 tiles_array.append(tile)
             test_result = tester.testTiles(tiles_array)
             FEN = createFEN(test_result)
+            return render_template('analysis.html', fen = FEN)
             #return redirect(url_for('uploaded_file', filename=filename))
 
     return render_template('index.html')
+
+if __name__ == '__main__':
+   app.run()
