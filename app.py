@@ -1,6 +1,6 @@
 import os
 import glob
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 import chess_board_recognizer
@@ -17,10 +17,12 @@ if not os.path.exists('user_tiles'):
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 UPLOAD_FOLDER = 'user_chessboards'
 TILES_OUTPUT_FOLDER = 'user_tiles'
+INDEX = 'index.html'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['TILES_OUTPUT_FOLDER'] = TILES_OUTPUT_FOLDER
+app.config['INDEX'] = INDEX
 
 symbol = {'black_bishop': 'b', 'black_king': 'k', 'black_knight': 'n', 'black_pawn': 'p', 'black_queen': 'q', 'black_rook': 'r', 'blank': 'e', \
 'white_bishop': 'B', 'white_king': 'K', 'white_knight': 'N', 'white_pawn': 'P', 'white_queen': 'Q', 'white_rook': 'R'}
@@ -93,12 +95,4 @@ def upload_file():
             FEN = createFEN(test_result)
             #return redirect(url_for('uploaded_file', filename=filename))
 
-    return '''
-    <!doctype html>
-    <title>Upload Chessboard Image</title>
-    <h1>Upload Chessboard Image</h1>
-    <form method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    '''
+    return render_template('index.html')
