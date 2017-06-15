@@ -7,15 +7,21 @@
     <title>Analysis</title>
     <link rel="stylesheet" href="static/css/chessboard.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="static/js/chessboard.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
 </head>
 
 <body>
     <div id="board" style="width: 400px"></div>
-    <script src="static/js/chessboard.js"></script>
     <script>
-    var FEN = '{{fen}}'
-    var board = ChessBoard('board', FEN);
         var init = function() {
+            var FEN = '{{fen}}';
+            var cfg = {
+                draggable: true,
+                dropOffBoard: 'snapback', // this is the default
+                position: FEN
+            };
+            var board = ChessBoard('board', cfg);
         };
         $(document).ready(init);
     </script>
