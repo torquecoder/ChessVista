@@ -22,6 +22,8 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['TILES_OUTPUT_FOLDER'] = TILES_OUTPUT_FOLDER
 
+symbol = ['black_bishop': 'b', 'black_king': 'k', 'black_knight': 'n', 'black_pawn': 'p', 'black_queen': 'q', 'black_rook': 'r', 'blank': 'e', \
+'white_bishop': 'B', 'white_king': 'K', 'white_knight': 'N', 'white_pawn': 'P', 'white_queen': 'Q', 'white_rook': 'R']
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -63,9 +65,9 @@ def upload_file():
             path = os.path.join(tiles_location, '*g')  # For finding all .jpeg, .jpg, .png files
             tiles = sorted(glob.glob(path))
             for tile in tiles:
-                print(tile)
                 tiles_array.append(tile)
             test_result = tester.testTiles(tiles_array)
+
             for piece in test_result:
                 print(piece)
             #return redirect(url_for('uploaded_file', filename=filename))
