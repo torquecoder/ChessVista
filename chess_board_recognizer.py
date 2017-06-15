@@ -283,9 +283,9 @@ def generateTileset(str, folder_name, tiles_directory):
         else:
             # resize by height
             ratio = new_size / img.size[1]
-        print ("Reducing by factor of %.2g" % (1. / ratio))
+        #print ("Reducing by factor of %.2g" % (1. / ratio))
         img = img.resize(img.size * ratio, PIL.Image.ADAPTIVE)
-        print ("New size: (%d x %d)" % (img.size[0], img.size[1]))
+        #print ("New size: (%d x %d)" % (img.size[0], img.size[1]))
 
     # See original image
     #display_array(np.asarray(img), rng=[0, 255])
@@ -319,25 +319,25 @@ def generateTileset(str, folder_name, tiles_directory):
         tf.reduce_sum(-Dy_neg, 1) / (a.shape[1] * a.shape[1])
 
 
-    import matplotlib.pyplot as plt
+    #import matplotlib.pyplot as plt
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(15, 5))
+    #fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(15, 5))
 
     # Arbitrarily choose half of max value as threshold, since they're such strong responses
     hough_Dx_thresh = tf.reduce_max(hough_Dx) * 3 / 5
     hough_Dy_thresh = tf.reduce_max(hough_Dy) * 3 / 5
 
-    ax1.plot(hough_Dx.eval())
-    ax1.axhline(hough_Dx_thresh.eval(), lw=2, linestyle=':', color='r')
-    ax1.set_title('Hough Gradient X')
-    ax1.set_xlabel('Pixel')
-    ax1.set_xlim(0, a.shape[1])
+    #ax1.plot(hough_Dx.eval())
+    #ax1.axhline(hough_Dx_thresh.eval(), lw=2, linestyle=':', color='r')
+    #ax1.set_title('Hough Gradient X')
+    #ax1.set_xlabel('Pixel')
+    #ax1.set_xlim(0, a.shape[1])
 
-    ax2.plot(hough_Dy.eval())
-    ax2.axhline(hough_Dy_thresh.eval(), lw=2, linestyle=':', color='r')
-    ax2.set_title('Hough Gradient Y')
-    ax2.set_xlim(0, a.shape[0])
-    ax2.set_xlabel('Pixel')
+    #ax2.plot(hough_Dy.eval())
+    #ax2.axhline(hough_Dy_thresh.eval(), lw=2, linestyle=':', color='r')
+    #ax2.set_title('Hough Gradient Y')
+    #ax2.set_xlim(0, a.shape[0])
+    #ax2.set_xlabel('Pixel')
     # Get chess lines
     lines_x, lines_y, is_match = getChessLines(hough_Dx.eval().flatten(),
                                                hough_Dy.eval().flatten(),
@@ -349,13 +349,14 @@ def generateTileset(str, folder_name, tiles_directory):
                                                hough_Dx_thresh.eval() * .9,
                                                hough_Dy_thresh.eval() * .9)
 
-    print ("X", lines_x, np.diff(lines_x))
-    print ("Y", lines_y, np.diff(lines_y))
+    #print ("X", lines_x, np.diff(lines_x))
+    #print ("Y", lines_y, np.diff(lines_y))
     if is_match:
         print ("Chessboard found")
     else:
         print ("Couldn't find Chessboard")
 
+    '''
     # Plot blurred 1d hough arrays and skeletonized versions
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
 
@@ -389,11 +390,12 @@ def generateTileset(str, folder_name, tiles_directory):
 
     print ("X   (vertical)", lines_x, np.diff(lines_x))
     print ("Y (horizontal)", lines_y, np.diff(lines_y))
+    '''
     if is_match:
         # Possibly check np.std(np.diff(lines_x)) for variance etc. as well/instead
         print ("7 horizontal and vertical lines found, slicing up squares")
         squares = getChessTiles(a, lines_x, lines_y)
-        print ("Tiles generated: (%dx%d)*%d" % (squares.shape[0], squares.shape[1], squares.shape[2]))
+        #print ("Tiles generated: (%dx%d)*%d" % (squares.shape[0], squares.shape[1], squares.shape[2]))
     else:
         print ("Number of lines not equal to 7")
 
@@ -403,7 +405,7 @@ def generateTileset(str, folder_name, tiles_directory):
         print ("Order is row-wise from top left of image going right and down, so a8,b8....a7,b7,c7...h1")
         print ("Showing 5 random squares...")
         for i in np.random.choice(np.arange(64), 5, replace=False):
-            print ("#%d: %s%d" % (i, letters[i % 8], i / 8 + 1))
+            #print ("#%d: %s%d" % (i, letters[i % 8], i / 8 + 1))
             display_array(squares[:, :, i], rng=[0, 255])
     else:
         print ("Didn't have lines to slice image up.")
@@ -430,3 +432,4 @@ def generateTileset(str, folder_name, tiles_directory):
             PIL.Image.fromarray(squares[:, :, i]) \
                 .resize([32, 32], PIL.Image.ADAPTIVE) \
                 .save(sqr_filename)
+
