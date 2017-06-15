@@ -18,16 +18,13 @@ def testTiles(tile_paths):
     saver = tf.train.import_meta_graph('trained_model/trained_model-15000.meta')
     saver.restore(session, tf.train.latest_checkpoint('trained_model/'))
     graph = tf.get_default_graph()
-
-
-
     y_pred = graph.get_tensor_by_name("y_pred:0")
+
+
+    classification_results = [] # Arranged in this order (A1, A2,..A8, B1, B2,....H8)
 
     for image_path in tile_paths:
 
-        # First, load the image
-        #dir_path = os.path.dirname(os.path.realpath(__file__))
-        #image_path="/test_data/blank/blank12.png"
         filename = image_path
         image_size = 32
         images = []
@@ -49,4 +46,7 @@ def testTiles(tile_paths):
         result = session.run(y_pred, feed_dict = feed_dict_testing)
         #print(result)
         index = np.argmax(result)
-        print(classes[index])
+        classification_results.append(classes[index])
+        #print(classes[index])
+
+    return classification_results

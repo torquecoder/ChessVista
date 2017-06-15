@@ -58,8 +58,11 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             chess_board_recognizer.generateTileset(file.filename, app.config['UPLOAD_FOLDER'], app.config['TILES_OUTPUT_FOLDER'])
             tiles_array = []
+
             tiles_array.append("train_data/white_queen/white_queen5.png")
-            tester.testTiles(tiles_array)
+            test_result = tester.testTiles(tiles_array)
+            for piece in test_result:
+                print(piece)
             #return redirect(url_for('uploaded_file', filename=filename))
 
     return '''
