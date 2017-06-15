@@ -53,13 +53,18 @@ def upload_file():
 
         if file and allowed_file(file.filename):
 
-            file.filename = str(uuid.uuid4()) + '.' + file.filename.rsplit('.', 1)[1].lower() # Some unique file name
+            random_file_name = str(uuid.uuid4())
+            file.filename = random_file_name + '.' + file.filename.rsplit('.', 1)[1].lower() # Some unique file name
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             chess_board_recognizer.generateTileset(file.filename, app.config['UPLOAD_FOLDER'], app.config['TILES_OUTPUT_FOLDER'])
             tiles_array = []
-
-            tiles_array.append("train_data/white_queen/white_queen5.png")
+            tiles_location = TILES_OUTPUT_FOLDER + '/squares_' + random_file_name
+            path = os.path.join(tiles_location, '*g')  # For finding all .jpeg, .jpg, .png files
+            tiles = sorted(glob.glob(path))
+            for tile in tiles:
+                print(tile)
+                tiles_array.append(tile)
             test_result = tester.testTiles(tiles_array)
             for piece in test_result:
                 print(piece)
